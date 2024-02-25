@@ -7,18 +7,17 @@ import dotenv from 'dotenv';
 dotenv.config();
 const secretKey = process.env.SECRET_KEY as string;
 
-const User = require('./models/user'); // Import your User model
+import User from './/models/user'; // Import your User model
 
 // Local strategy for username/password login
 passport.use(
   new LocalStrategy(async (username, password, done) => {
     try {
-      const user = await User.findOne({ username });
+      console.log(username, password, done)
+      const user = await User.findOne({ name:username });
       if (!user) {
         return done(null, false, { message: 'Incorrect username.' });
       }
-
-      console.log(user);
       const isPasswordValid = await bcrypt.compare(password, user.password);
 
       if (!isPasswordValid) {

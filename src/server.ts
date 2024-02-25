@@ -6,11 +6,12 @@ import express, { Request, Response, NextFunction } from 'express';
 import logger from 'jet-logger';
 import cors from 'cors';
 import router from './routes/router';
-require('dotenv').config();
+import passport from './passport-config';
+import dotenv from 'dotenv';
+dotenv.config();
 
 import 'express-async-errors';
 
-import Paths from '@src/constants/Paths';
 
 import EnvVars from '@src/constants/EnvVars';
 import HttpStatusCodes from '@src/constants/HttpStatusCodes';
@@ -21,8 +22,8 @@ import { RouteError } from '@src/other/classes';
 
 //database connection
 
-const mongoose = require('mongoose');
-const mongoDB = process.env.MONGODB_URI;
+import mongoose from 'mongoose';
+const mongoDB = process.env.MONGODB_URI!;
 main().catch((err) => {
   console.log(err);
 });
@@ -35,6 +36,7 @@ async function main() {
 
 const app = express();
 app.use(cors());
+app.use(passport.initialize());
 
 // **** Setup **** //
 
