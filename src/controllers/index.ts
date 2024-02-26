@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction, RequestHandler } from 'express';
+import { Request, Response, NextFunction} from 'express';
 import dotenv from 'dotenv';
 import User from '../models/user';
 import bcrypt from 'bcryptjs';
@@ -19,6 +19,7 @@ export type ReqBody = {
 };
 
 export const main_get: ControllerFunction = (req, res) => {
+  console.log('passport pass it to main controller');
   res.json('u are in main page');
 };
 
@@ -53,7 +54,6 @@ export const signup_post: ControllerFunction = async (req, res) => {
 
 export const login_post: ControllerFunction = (req, res, next) => {
   const doneFunction = (err: Error | null, user: UserDocument | null) => {
-    console.log('done function here', err, user);
     if (err) {
       return res.status(500).json({ error: 'Internal server error' });
     }

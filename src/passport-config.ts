@@ -5,7 +5,7 @@ import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 
 dotenv.config();
-const secretKey = process.env.SECRET_KEY as string;
+const secretKey = process.env.JWT_SECRET as string;
 
 import User from './/models/user'; // Import your User model
 
@@ -13,7 +13,6 @@ import User from './/models/user'; // Import your User model
 passport.use(
   new LocalStrategy(async (username, password, done) => {
     try {
-      console.log(username, password, done)
       const user = await User.findOne({ name:username });
       if (!user) {
         return done(null, false, { message: 'Incorrect username.' });
@@ -31,7 +30,6 @@ passport.use(
   })
 );
 
-// JWT strategy for token authentication
 passport.use(
   new JwtStrategy(
     {
@@ -40,11 +38,10 @@ passport.use(
     },
     async (jwtPayload, done) => {
       try {
-        const user = await User.findById(jwtPayload.sub);
+        const user = await User.findById(jwtPayload.user._id);
         if (!user) {
           return done(null, false);
         }
-
         return done(null, user);
       } catch (error) {
         return done(error);
