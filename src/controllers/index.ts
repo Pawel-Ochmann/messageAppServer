@@ -1,10 +1,11 @@
-import { Request, Response, NextFunction} from 'express';
+import { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
 import User from '../models/user';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import passport from 'passport';
 import { UserDocument } from '../models/user';
+
 
 dotenv.config();
 const jwtSecret = process.env.JWT_SECRET!;
@@ -19,7 +20,6 @@ export type ReqBody = {
 };
 
 export const main_get: ControllerFunction = (req, res) => {
-  console.log('passport pass it to main controller');
   res.json('u are in main page');
 };
 

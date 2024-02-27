@@ -1,16 +1,16 @@
 import mongoose from 'mongoose';
 
-type Message = {
+type MessageType = {
   author: string;
   content: string;
   date: Date;
 };
 
-type Conversation = {
-  messages: Message[];
+type ConversationType = {
+  messages: MessageType[];
 };
 
-const ConversationSchema = new mongoose.Schema<Conversation>({
+const ConversationSchema = new mongoose.Schema<ConversationType>({
   messages: [
     {
       author: { type: String, required: true },
@@ -20,9 +20,9 @@ const ConversationSchema = new mongoose.Schema<Conversation>({
   ],
 });
 
-const ConversationModel = mongoose.model<Conversation>(
+const ConversationModel = mongoose.model<ConversationType>(
   'Conversation',
   ConversationSchema,
 );
 
-export { Conversation, Message, ConversationModel };
+export { ConversationType, MessageType, ConversationModel };
