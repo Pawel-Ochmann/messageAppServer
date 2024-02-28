@@ -32,10 +32,9 @@ async function main() {
 }
 
 const app = express();
-
-initializeSocket();
-
 app.use(cors());
+
+initializeSocket(4000);
 app.use(passport.initialize());
 
 // Basic middleware
