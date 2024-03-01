@@ -72,7 +72,7 @@ app.use(
       status = err.status;
     }
     return res.status(status).json({ error: err.message });
-  }
+  },
 );
 
 // ** Front-End Content ** //

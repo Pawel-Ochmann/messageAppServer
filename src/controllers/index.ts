@@ -1,11 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
-import User from '../models/user';
+import User, {UserDocument} from '../models/user';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import passport from 'passport';
-import { UserDocument } from '../models/user';
-
 
 dotenv.config();
 const jwtSecret = process.env.JWT_SECRET!;
@@ -20,7 +18,22 @@ export type ReqBody = {
 };
 
 export const main_get: ControllerFunction = (req, res) => {
-  res.json('u are in main page');
+  const token = req.headers.authorization?.split(' ')[1] as string;
+
+  type Decoded = {
+    user:UserDocument
+  }
+
+  jwt.verify(token, jwtSecret, (err, decoded) => {
+
+    if (err) {
+      return res.status(401).json({ message: 'Invalid authorization token' });
+    }
+    const decodedToken = decoded as Decoded;
+    console.log(decodedToken.user);
+
+    res.json(decodedToken.user.name);
+  });
 };
 
 export const signup_post: ControllerFunction = async (req, res) => {
@@ -69,6 +82,6 @@ export const login_post: ControllerFunction = (req, res, next) => {
   passport.authenticate('local', { session: false }, doneFunction)(
     req,
     res,
-    next,
+    next
   );
 };
