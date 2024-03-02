@@ -1,9 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
-import User, {UserDocument} from '../models/user';
+import User, { UserDocument } from '../models/user';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import passport from 'passport';
+import fs from 'fs';
+import path from 'path';
 
 dotenv.config();
 const jwtSecret = process.env.JWT_SECRET!;
@@ -21,16 +23,14 @@ export const main_get: ControllerFunction = (req, res) => {
   const token = req.headers.authorization?.split(' ')[1] as string;
 
   type Decoded = {
-    user:UserDocument
-  }
+    user: UserDocument;
+  };
 
   jwt.verify(token, jwtSecret, (err, decoded) => {
-
     if (err) {
       return res.status(401).json({ message: 'Invalid authorization token' });
     }
     const decodedToken = decoded as Decoded;
-    console.log(decodedToken.user);
 
     res.json(decodedToken.user.name);
   });
@@ -57,6 +57,9 @@ export const signup_post: ControllerFunction = async (req, res) => {
 
     // Save the user to the database
     await newUser.save();
+
+    const userDir = path.join(__dirname, '..', 'public', 'users', name);
+    fs.mkdirSync(userDir);
 
     res.status(201).json({ done: true });
   } catch (error) {
