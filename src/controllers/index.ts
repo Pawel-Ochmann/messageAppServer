@@ -60,6 +60,10 @@ export const signup_post: ControllerFunction = async (req, res) => {
 
     const userDir = path.join(__dirname, '..', 'public', 'users', name);
     fs.mkdirSync(userDir);
+    const imagesDir = path.join(userDir, 'images');
+    const audioDir = path.join(userDir, 'audio');
+    fs.mkdirSync(imagesDir);
+    fs.mkdirSync(audioDir);
 
     res.status(201).json({ done: true });
   } catch (error) {
@@ -87,4 +91,67 @@ export const login_post: ControllerFunction = (req, res, next) => {
     res,
     next
   );
+};
+
+export const avatar_get: ControllerFunction = (req, res) => {
+  const { user } = req.params;
+  const imagePath = path.join(
+    __dirname,
+    '..',
+    'public',
+    'users',
+    user,
+    'avatar'
+  );
+
+  fs.access(imagePath, fs.constants.F_OK, (err) => {
+    if (err) {
+      res.status(404).send('Avatar not found');
+    } else {
+      res.status(200).send('Avatar found');
+    }
+  });
+};
+
+
+
+
+export const avatar_post: ControllerFunction = (req, res) => {
+  const { user } = req.params;
+  const imagePath = path.join(
+    __dirname,
+    '..',
+    'public',
+    'users',
+    user,
+    'avatar'
+  );
+
+  console.log(req.file);
+  if (req.file) {
+    const imageFile = req.file;
+
+    // Save the file
+    fs.writeFile(imagePath, imageFile.buffer, (err) => {
+      if (err) {
+        console.error('Error saving image:', err);
+        res.status(500).send('Internal server error');
+      } else {
+        res.status(200).send(imagePath);
+      }
+    });
+  } else {
+    // If no file attached, delete the existing image (if any)
+    fs.unlink(imagePath, (err) => {
+      if (err && err.code === 'ENOENT') {
+        // If file doesn't exist, send back null
+        res.status(200).send(null);
+      } else if (err) {
+        console.error('Error deleting image:', err);
+        res.status(500).send('Internal server error');
+      } else {
+        res.status(200).send(null);
+      }
+    });
+  }
 };

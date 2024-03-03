@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 type MessageType = {
   author: string;
   content: string;
+  type: 'text' | 'image' | 'gif' | 'audio';
   date: Date;
 };
 
@@ -15,6 +16,11 @@ const ConversationSchema = new mongoose.Schema<ConversationType>({
     {
       author: { type: String, required: true },
       content: { type: String, required: true },
+      type: {
+        type: String,
+        enum: ['text', 'image', 'gif', 'audio'],
+        required: true,
+      },
       date: { type: Date, required: true, default: Date.now },
     },
   ],
