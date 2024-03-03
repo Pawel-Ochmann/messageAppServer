@@ -104,17 +104,12 @@ export const avatar_get: ControllerFunction = (req, res) => {
     'avatar'
   );
 
-  fs.access(imagePath, fs.constants.F_OK, (err) => {
-    if (err) {
-      res.status(404).send('Avatar not found');
-    } else {
-      res.status(200).send('Avatar found');
-    }
-  });
+  if (fs.existsSync(imagePath)) {
+    res.sendFile(imagePath);
+  } else {
+    res.sendStatus(404);
+  }
 };
-
-
-
 
 export const avatar_post: ControllerFunction = (req, res) => {
   const { user } = req.params;

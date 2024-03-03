@@ -8,7 +8,7 @@ import {
 } from '../controllers/index';
 import passport from 'passport';
 import multer from 'multer';
-const upload = multer({ dest: 'uploads/' });
+const upload = multer();
 
 const protect = passport.authenticate('jwt', {
   session: false,
@@ -17,9 +17,9 @@ const protect = passport.authenticate('jwt', {
 
 const router = express.Router();
 
-router.get('/:user/avatar', upload.single('avatar'), avatar_get);
-router.get('/', protect, main_get);
-router.post('/:user/avatar',  avatar_post);
+router.get('/:user/avatar', avatar_get);
+router.get('/', main_get);
+router.post('/:user/avatar', protect, upload.single('avatar'), avatar_post);
 router.post('/signup', signup_post);
 router.post('/login', login_post);
 
