@@ -62,8 +62,10 @@ export const signup_post: ControllerFunction = async (req, res) => {
     fs.mkdirSync(userDir);
     const imagesDir = path.join(userDir, 'images');
     const audioDir = path.join(userDir, 'audio');
+    const gifDir = path.join(userDir, 'gif');
     fs.mkdirSync(imagesDir);
     fs.mkdirSync(audioDir);
+    fs.mkdirSync(gifDir);
 
     res.status(201).json({ done: true });
   } catch (error) {

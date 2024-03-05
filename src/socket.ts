@@ -1,9 +1,9 @@
+/* eslint-disable indent */
 import { Server, Socket } from 'socket.io';
 import http from 'http';
 import { MessageType, ConversationModel } from './models/conversation';
 
 function setupSocketIO(server: http.Server) {
-
   const io = new Server(server, {
     cors: {
       origin: '*',
@@ -32,15 +32,36 @@ function setupSocketIO(server: http.Server) {
 
     socket.on('newMessage', async (newMessage: MessageType) => {
       try {
-        const conversation = await ConversationModel.findOneAndUpdate(
-          {},
-          { $push: { messages: newMessage } },
-          { upsert: true, new: true }
-        );
+        switch (newMessage.type) {
+          case 'text': {
+            const conversation = await ConversationModel.findOneAndUpdate(
+              {},
+              { $push: { messages: newMessage } },
+              { new: true }
+            );
+            if (conversation) io.emit('messages', conversation.messages);
+            break;
+          }
+          case 'gif': {
+            const conversation = await ConversationModel.findOneAndUpdate(
+              {},
+              { $push: { messages: newMessage } },
+              { new: true }
+            );
+            if (conversation) io.emit('messages', conversation.messages);
+            break;
+          }
+          case 'image':
+            // Handle image message
+            break;
 
-        const updatedMessages: MessageType[] = conversation.messages;
-
-        io.emit('messages', updatedMessages);
+          case 'audio':
+            // Handle audio message
+            break;
+          default:
+            // Handle unknown message type
+            break;
+        }
       } catch (error) {
         console.error('Error saving new message:', error);
       }
