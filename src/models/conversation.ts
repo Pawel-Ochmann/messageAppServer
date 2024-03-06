@@ -2,9 +2,10 @@ import mongoose from 'mongoose';
 
 type MessageType = {
   author: string;
-  content?: string;
+  content: string | ArrayBufferView;
   type: 'text' | 'image' | 'gif' | 'audio';
   date: Date;
+  id?:string
 };
 
 type ConversationType = {

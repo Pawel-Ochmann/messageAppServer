@@ -2,6 +2,9 @@
 import { Server, Socket } from 'socket.io';
 import http from 'http';
 import { MessageType, ConversationModel } from './models/conversation';
+import path from 'path';
+import fs from 'fs';
+import { v4 as uuid } from 'uuid';
 
 function setupSocketIO(server: http.Server) {
   const io = new Server(server, {
@@ -51,9 +54,46 @@ function setupSocketIO(server: http.Server) {
             if (conversation) io.emit('messages', conversation.messages);
             break;
           }
-          case 'image':
-            // Handle image message
+          case 'image': {
+            const imageData = newMessage.content;
+
+            console.log('working')
+
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            const messageId: string = uuid() as string;
+            const user = newMessage.author;
+            const imagePath: string = path.join(
+              __dirname,
+              'public',
+              'users',
+              user,
+              'images',
+              messageId
+            );
+
+            if (typeof imageData === 'string') {
+              fs.writeFileSync(imagePath, Buffer.from(imageData, 'base64'));
+            }
+
+            const requestPath = path.join(user, 'images', messageId);
+
+            const updatedMessage = {
+              ...newMessage,
+              content: requestPath,
+              id: messageId,
+            };
+
+            const updatedConversation =
+              await ConversationModel.findOneAndUpdate(
+                {},
+                { $push: { messages: updatedMessage } },
+                { new: true }
+              );
+
+            if (updatedConversation)
+              io.emit('messages', updatedConversation.messages);
             break;
+          }
 
           case 'audio':
             // Handle audio message

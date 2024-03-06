@@ -5,6 +5,7 @@ import {
   login_post,
   avatar_get,
   avatar_post,
+  images_get,
 } from '../controllers/index';
 import passport from 'passport';
 import multer from 'multer';
@@ -14,9 +15,8 @@ const protect = passport.authenticate('jwt', {
   session: false,
 }) as RequestHandler;
 
-
 const router = express.Router();
-
+router.get('/:user/images/messageId', images_get);
 router.get('/:user/avatar', avatar_get);
 router.get('/', main_get);
 router.post('/:user/avatar', protect, upload.single('avatar'), avatar_post);

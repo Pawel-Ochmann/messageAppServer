@@ -62,10 +62,8 @@ export const signup_post: ControllerFunction = async (req, res) => {
     fs.mkdirSync(userDir);
     const imagesDir = path.join(userDir, 'images');
     const audioDir = path.join(userDir, 'audio');
-    const gifDir = path.join(userDir, 'gif');
     fs.mkdirSync(imagesDir);
     fs.mkdirSync(audioDir);
-    fs.mkdirSync(gifDir);
 
     res.status(201).json({ done: true });
   } catch (error) {
@@ -150,5 +148,24 @@ export const avatar_post: ControllerFunction = (req, res) => {
         res.status(200).send(null);
       }
     });
+  }
+};
+
+export const images_get: ControllerFunction = (req, res) => {
+  const { user, messageId } = req.params;
+  const imagePath = path.join(
+    __dirname,
+    '..',
+    'public',
+    'users',
+    user,
+    'images',
+    messageId
+  );
+
+  if (fs.existsSync(imagePath)) {
+    res.sendFile(imagePath);
+  } else {
+    res.sendStatus(404);
   }
 };
