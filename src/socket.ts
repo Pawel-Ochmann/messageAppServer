@@ -20,13 +20,11 @@ function setupSocketIO(server: http.Server) {
 
     socket.on('join', async () => {
       try {
-        // Fetch array of messages from MongoDB
         const conversation = await ConversationModel.findOne();
         const messages: MessageType[] = conversation
           ? conversation.messages
           : [];
 
-        // Emit the messages to the client
         socket.emit('messages', messages);
       } catch (error) {
         console.error('Error fetching messages:', error);
@@ -54,46 +52,49 @@ function setupSocketIO(server: http.Server) {
             if (conversation) io.emit('messages', conversation.messages);
             break;
           }
-          case 'image': {
-            const imageData = newMessage.content;
+          case 'image':
+            {
+              console.log(newMessage);
+              const user = newMessage.author;
+              const messageId = uuid();
 
-            console.log('working')
-
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            const messageId: string = uuid() as string;
-            const user = newMessage.author;
-            const imagePath: string = path.join(
-              __dirname,
-              'public',
-              'users',
-              user,
-              'images',
-              messageId
-            );
-
-            if (typeof imageData === 'string') {
-              fs.writeFileSync(imagePath, Buffer.from(imageData, 'base64'));
-            }
-
-            const requestPath = path.join(user, 'images', messageId);
-
-            const updatedMessage = {
-              ...newMessage,
-              content: requestPath,
-              id: messageId,
-            };
-
-            const updatedConversation =
-              await ConversationModel.findOneAndUpdate(
-                {},
-                { $push: { messages: updatedMessage } },
-                { new: true }
+              const imagePath: string = path.join(
+                __dirname,
+                'public',
+                'users',
+                user,
+                'images',
+                `${messageId}`
               );
+                  console.log('Received new message:', newMessage);
 
-            if (updatedConversation)
-              io.emit('messages', updatedConversation.messages);
+                  const fileData = newMessage.content as Buffer;
+                  fs.writeFile(imagePath, fileData, (err) => {
+                    if (err) {
+                      console.error('Error writing file:', err);
+                      return;
+                    }
+                    console.log('File written successfully:', imagePath);
+                  });
+
+              const requestPath = `/users/${user}/images/${messageId}`;
+              const updatedMessage = {
+                ...newMessage,
+                content: requestPath,
+                id: messageId,
+              };
+
+              const updatedConversation =
+                await ConversationModel.findOneAndUpdate(
+                  {},
+                  { $push: { messages: updatedMessage } },
+                  { new: true }
+                );
+
+              if (updatedConversation)
+                io.emit('messages', updatedConversation.messages);
+            }
             break;
-          }
 
           case 'audio':
             // Handle audio message

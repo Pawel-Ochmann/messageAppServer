@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 type MessageType = {
   author: string;
-  content: string | ArrayBufferView;
+  content: string | Buffer;
   type: 'text' | 'image' | 'gif' | 'audio';
   date: Date;
   id?:string

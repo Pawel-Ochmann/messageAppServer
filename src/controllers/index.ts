@@ -122,7 +122,6 @@ export const avatar_post: ControllerFunction = (req, res) => {
     'avatar'
   );
 
-  console.log(req.file);
   if (req.file) {
     const imageFile = req.file;
 
@@ -136,10 +135,8 @@ export const avatar_post: ControllerFunction = (req, res) => {
       }
     });
   } else {
-    // If no file attached, delete the existing image (if any)
     fs.unlink(imagePath, (err) => {
       if (err && err.code === 'ENOENT') {
-        // If file doesn't exist, send back null
         res.status(200).send(null);
       } else if (err) {
         console.error('Error deleting image:', err);
