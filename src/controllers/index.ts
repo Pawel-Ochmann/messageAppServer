@@ -166,3 +166,22 @@ export const images_get: ControllerFunction = (req, res) => {
     res.sendStatus(404);
   }
 };
+
+export const audio_get: ControllerFunction = (req, res) => {
+  const { user, messageId } = req.params;
+  const audioPath = path.join(
+    __dirname,
+    '..',
+    'public',
+    'users',
+    user,
+    'audio',
+    messageId
+  );
+
+  if (fs.existsSync(audioPath)) {
+    res.sendFile(audioPath);
+  } else {
+    res.sendStatus(404);
+  }
+};

@@ -97,7 +97,46 @@ function setupSocketIO(server: http.Server) {
             break;
 
           case 'audio':
-            // Handle audio message
+                 {
+                   const user = newMessage.author;
+                   const messageId = uuid();
+
+                   const audioPath: string = path.join(
+                     __dirname,
+                     'public',
+                     'users',
+                     user,
+                     'audio',
+                     `${messageId}`
+                   );
+                   console.log('Received new message:', newMessage);
+
+                   const fileData = newMessage.content as Buffer;
+                   fs.writeFile(audioPath, fileData, (err) => {
+                     if (err) {
+                       console.error('Error writing file:', err);
+                       return;
+                     }
+                     console.log('File written successfully:', audioPath);
+                   });
+
+                   const requestPath = `/users/${user}/audio/${messageId}`;
+                   const updatedMessage = {
+                     ...newMessage,
+                     content: requestPath,
+                     id: messageId,
+                   };
+
+                   const updatedConversation =
+                     await ConversationModel.findOneAndUpdate(
+                       {},
+                       { $push: { messages: updatedMessage } },
+                       { new: true }
+                     );
+
+                   if (updatedConversation)
+                     io.emit('messages', updatedConversation.messages);
+                 }
             break;
           default:
             // Handle unknown message type

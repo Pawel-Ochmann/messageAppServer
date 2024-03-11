@@ -6,6 +6,7 @@ import {
   avatar_get,
   avatar_post,
   images_get,
+  audio_get,
 } from '../controllers/index';
 import passport from 'passport';
 import multer from 'multer';
@@ -16,6 +17,7 @@ const protect = passport.authenticate('jwt', {
 }) as RequestHandler;
 
 const router = express.Router();
+router.get('/:user/audio/messageId', audio_get);
 router.get('/:user/images/messageId', images_get);
 router.get('/:user/avatar', avatar_get);
 router.get('/', main_get);
