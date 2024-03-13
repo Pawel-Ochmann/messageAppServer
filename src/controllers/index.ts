@@ -185,3 +185,17 @@ export const audio_get: ControllerFunction = (req, res) => {
     res.sendStatus(404);
   }
 };
+
+export const contacts_get = async (req: Request, res: Response) => {
+  try {
+    const userName = req.params.user;
+    console.log(userName);
+    const users: UserDocument[] = await User.find();
+    const contacts = users.filter((user) => user.name !== userName);
+
+    res.json(contacts);
+  } catch (error) {
+    console.error('Error fetching contacts:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
