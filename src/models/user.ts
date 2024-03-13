@@ -2,12 +2,14 @@ import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
 
+
+
 export interface UserDocument extends mongoose.Document {
   name: string;
   password: string;
   lastVisited: Date;
-  conversations: mongoose.Types.ObjectId[];
-  groupConversations: mongoose.Types.ObjectId[];
+  conversations: { ref: mongoose.Types.ObjectId; name: string }[];
+  groupConversations: { ref: mongoose.Types.ObjectId; name: string }[];
 }
 
 const UserSchema = new Schema<UserDocument>({
@@ -28,15 +30,27 @@ const UserSchema = new Schema<UserDocument>({
 
   conversations: [
     {
-      type: Schema.Types.ObjectId,
-      ref: 'Conversation',
+      ref: {
+        type: Schema.Types.ObjectId,
+        ref: 'Conversation',
+      },
+      name: {
+        type: String,
+        required: true,
+      },
     },
   ],
 
   groupConversations: [
     {
-      type: Schema.Types.ObjectId,
-      ref: 'GroupConversation',
+      ref: {
+        type: Schema.Types.ObjectId,
+        ref: 'Conversation',
+      },
+      name: {
+        type: String,
+        required: true,
+      },
     },
   ],
 });

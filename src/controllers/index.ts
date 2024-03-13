@@ -31,8 +31,9 @@ export const main_get: ControllerFunction = (req, res) => {
       return res.status(401).json({ message: 'Invalid authorization token' });
     }
     const decodedToken = decoded as Decoded;
+    decodedToken.user.password = 'Access not permitted';
 
-    res.json(decodedToken.user.name);
+    res.json(decodedToken.user);
   });
 };
 
@@ -46,10 +47,8 @@ export const signup_post: ControllerFunction = async (req, res) => {
       return res.json({ done: false, message: 'Username already exists' });
     }
 
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create a new user
     const newUser = new User({
       name,
       password: hashedPassword,
@@ -189,7 +188,6 @@ export const audio_get: ControllerFunction = (req, res) => {
 export const contacts_get = async (req: Request, res: Response) => {
   try {
     const userName = req.params.user;
-    console.log(userName);
     const users: UserDocument[] = await User.find();
     const contacts = users.filter((user) => user.name !== userName);
 
