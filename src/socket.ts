@@ -18,19 +18,6 @@ function setupSocketIO(server: http.Server) {
   io.on('connection', (socket: Socket) => {
     console.log('A user connected');
 
-    socket.on('join', async () => {
-      try {
-        const conversation = await ConversationModel.findOne();
-        const messages: MessageType[] = conversation
-          ? conversation.messages
-          : [];
-
-        socket.emit('messages', messages);
-      } catch (error) {
-        console.error('Error fetching messages:', error);
-      }
-    });
-
     socket.on('newMessage', async (newMessage: MessageType) => {
       try {
         switch (newMessage.type) {

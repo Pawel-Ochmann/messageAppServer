@@ -32,6 +32,7 @@ export const main_get: ControllerFunction = (req, res) => {
     }
     const decodedToken = decoded as Decoded;
     decodedToken.user.password = 'Access not permitted';
+    console.log(decodedToken.user);
 
     res.json(decodedToken.user);
   });
