@@ -2,13 +2,11 @@ import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
 
-
-
 export interface UserType extends mongoose.Document {
   name: string;
   password: string;
   lastVisited: Date;
-  conversations: { ref: mongoose.Types.ObjectId }[];
+  conversations: mongoose.Types.ObjectId[];
 }
 
 const UserModel = new Schema<UserType>({
@@ -29,10 +27,9 @@ const UserModel = new Schema<UserType>({
 
   conversations: [
     {
-      ref: {
-        type: Schema.Types.ObjectId,
-        ref: 'Conversation',
-      },
+      type: Schema.Types.ObjectId,
+      ref: 'Conversation',
+      required:true,
     },
   ],
 });

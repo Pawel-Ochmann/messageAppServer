@@ -10,13 +10,15 @@ type MessageType = {
 };
 
 type ConversationType = {
+  key: string;
   messages: MessageType[];
   participants: mongoose.Types.ObjectId[];
   group: boolean;
-  name?: string;
+  name: string[];
 };
 
 const ConversationSchema = new mongoose.Schema<ConversationType>({
+  key: { type: String, required:true },
   messages: [
     {
       author: { type: String, required: true },
@@ -29,9 +31,9 @@ const ConversationSchema = new mongoose.Schema<ConversationType>({
       date: { type: Date, required: true, default: Date.now },
     },
   ],
+  name: { type: [String], required: true },
   participants: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   group: { type: Boolean, required: true },
-  name: { type: String },
 });
 
 const ConversationModel = mongoose.model<ConversationType>(

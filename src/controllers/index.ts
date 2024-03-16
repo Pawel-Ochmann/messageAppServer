@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
 import UserModel, { UserType } from '../models/user';
@@ -19,22 +20,31 @@ export type ReqBody = {
   password: string;
 };
 
-export const main_get: ControllerFunction = (req, res) => {
+export const main_get: ControllerFunction = async(req, res) => {
+  const user =  await UserModel.findOne({});
+  console.log('user: ', user)
   const token = req.headers.authorization?.split(' ')[1] as string;
 
   type Decoded = {
     user: UserType;
   };
 
-  jwt.verify(token, jwtSecret, (err, decoded) => {
+  jwt.verify(token, jwtSecret, async (err, decoded) => {
     if (err) {
       return res.status(401).json({ message: 'Invalid authorization token' });
     }
     const decodedToken = decoded as Decoded;
-    decodedToken.user.password = 'Access not permitted';
-    console.log(decodedToken.user);
+    const decodedUser = await UserModel.findById(
+      decodedToken.user._id
+    ).populate('conversations');
 
-    res.json(decodedToken.user);
+    if (!decodedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    decodedUser.password = 'Access not permitted';
+
+    res.json(decodedUser);
   });
 };
 
@@ -55,7 +65,6 @@ export const signup_post: ControllerFunction = async (req, res) => {
       password: hashedPassword,
     });
 
-    // Save the user to the database
     await newUser.save();
 
     const userDir = path.join(__dirname, '..', 'public', 'users', name);
@@ -186,3 +195,15 @@ export const audio_get: ControllerFunction = (req, res) => {
   }
 };
 
+export const contacts_get = async (req: Request, res: Response) => {
+  try {
+    const userName = req.params.user;
+    const users: UserType[] = await UserModel.find();
+    const contacts = users.filter((user) => user.name !== userName);
+
+    res.json(contacts);
+  } catch (error) {
+    console.error('Error fetching contacts:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};

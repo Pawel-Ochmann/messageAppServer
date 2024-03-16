@@ -28,45 +28,48 @@ function setupSocketIO(server: http.Server) {
       console.log(`User ${userName} joined room`);
     });
 
-    socket.on(
-      'createNewChatConversation',
-      async (chatOpen: ConversationType) => {
-        try {
-          const newConversation = await ConversationModel.create({
-            messages: [],
-            participants: chatOpen.participants,
-            group: chatOpen.group,
-            name: chatOpen.name,
-          });
+    socket.on('createNewConversation', async (chatOpen: ConversationType) => {
+      try {
+        const existingConversation = await ConversationModel.findOne({
+          key: chatOpen.key,
+        });
 
-          const participants = await UserModel.find({
-            _id: { $in: chatOpen.participants },
-          });
-
-          for (const participant of participants) {
-            participant.conversations.push({
-              ref: newConversation._id,
-            });
-            await participant.save();
-          }
-          const populatedParticipants = await UserModel.populate(participants, {
-            path: 'conversations.ref',
-            model: 'Conversation',
-          });
-
-          for (const participant of populatedParticipants) {
-            socket
-              .to(participant.name)
-              .emit('updatedUserDocument', participant);
-          }
-
-          socket.emit('createNewChatConfirmation', true);
-        } catch (error) {
-          console.error('Error creating new chat:', error);
+        if (existingConversation) {
           socket.emit('createNewChatConfirmation', false);
+          return;
         }
+
+        const newConversation = await ConversationModel.create({
+          key:chatOpen.key,
+          messages: [],
+          participants: chatOpen.participants,
+          group: chatOpen.group,
+          name: chatOpen.name,
+        });
+
+        const participants = await UserModel.find({
+          _id: { $in: chatOpen.participants },
+        });
+
+        for (const participant of participants) {
+          participant.conversations.push(newConversation._id);
+          await participant.save();
+        }
+        const populatedParticipants = await UserModel.populate(participants, {
+          path: 'conversations.ref',
+          model: 'Conversation',
+        });
+
+        for (const participant of populatedParticipants) {
+          socket.to(participant.name).emit('updatedUserDocument', participant);
+        }
+
+        socket.emit('createNewChatConfirmation', true);
+      } catch (error) {
+        console.error('Error creating new chat:', error);
+        socket.emit('createNewChatConfirmation', false);
       }
-    );
+    });
     socket.on('newMessage', async (newMessage: MessageType) => {
       try {
         switch (newMessage.type) {
