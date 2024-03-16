@@ -4,15 +4,14 @@ const Schema = mongoose.Schema;
 
 
 
-export interface UserDocument extends mongoose.Document {
+export interface UserType extends mongoose.Document {
   name: string;
   password: string;
   lastVisited: Date;
-  conversations: { ref: mongoose.Types.ObjectId; name: string }[];
-  groupConversations: { ref: mongoose.Types.ObjectId; name: string }[];
+  conversations: { ref: mongoose.Types.ObjectId }[];
 }
 
-const UserSchema = new Schema<UserDocument>({
+const UserModel = new Schema<UserType>({
   name: {
     type: String,
     required: true,
@@ -34,25 +33,8 @@ const UserSchema = new Schema<UserDocument>({
         type: Schema.Types.ObjectId,
         ref: 'Conversation',
       },
-      name: {
-        type: String,
-        required: true,
-      },
-    },
-  ],
-
-  groupConversations: [
-    {
-      ref: {
-        type: Schema.Types.ObjectId,
-        ref: 'Conversation',
-      },
-      name: {
-        type: String,
-        required: true,
-      },
     },
   ],
 });
 
-export default mongoose.model<UserDocument>('User', UserSchema);
+export default mongoose.model<UserType>('User', UserModel);

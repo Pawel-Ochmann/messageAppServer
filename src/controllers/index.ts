@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
-import User, { UserDocument } from '../models/user';
+import UserModel, { UserType } from '../models/user';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import passport from 'passport';
@@ -23,7 +23,7 @@ export const main_get: ControllerFunction = (req, res) => {
   const token = req.headers.authorization?.split(' ')[1] as string;
 
   type Decoded = {
-    user: UserDocument;
+    user: UserType;
   };
 
   jwt.verify(token, jwtSecret, (err, decoded) => {
@@ -43,14 +43,14 @@ export const signup_post: ControllerFunction = async (req, res) => {
 
   try {
     // Check if the username already exists
-    const existingUser = await User.findOne({ name });
+    const existingUser = await UserModel.findOne({ name });
     if (existingUser) {
       return res.json({ done: false, message: 'Username already exists' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = new User({
+    const newUser = new UserModel({
       name,
       password: hashedPassword,
     });
@@ -73,7 +73,7 @@ export const signup_post: ControllerFunction = async (req, res) => {
 };
 
 export const login_post: ControllerFunction = (req, res, next) => {
-  const doneFunction = (err: Error | null, user: UserDocument | null) => {
+  const doneFunction = (err: Error | null, user: UserType | null) => {
     if (err) {
       return res.status(500).json({ error: 'Internal server error' });
     }
@@ -186,15 +186,3 @@ export const audio_get: ControllerFunction = (req, res) => {
   }
 };
 
-export const contacts_get = async (req: Request, res: Response) => {
-  try {
-    const userName = req.params.user;
-    const users: UserDocument[] = await User.find();
-    const contacts = users.filter((user) => user.name !== userName);
-
-    res.json(contacts);
-  } catch (error) {
-    console.error('Error fetching contacts:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-};

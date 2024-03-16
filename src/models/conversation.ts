@@ -13,7 +13,7 @@ type ConversationType = {
   messages: MessageType[];
   participants: mongoose.Types.ObjectId[];
   group: boolean;
-  name: string;
+  name?: string;
 };
 
 const ConversationSchema = new mongoose.Schema<ConversationType>({
