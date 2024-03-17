@@ -40,7 +40,7 @@ function setupSocketIO(server: http.Server) {
         }
 
         const newConversation = await ConversationModel.create({
-          key:chatOpen.key,
+          key: chatOpen.key,
           messages: [],
           participants: chatOpen.participants,
           group: chatOpen.group,
@@ -70,121 +70,116 @@ function setupSocketIO(server: http.Server) {
         socket.emit('createNewChatConfirmation', false);
       }
     });
-    socket.on('newMessage', async (newMessage: MessageType) => {
-      try {
-        switch (newMessage.type) {
-          case 'text': {
-            const conversation = await ConversationModel.findOneAndUpdate(
-              {},
-              { $push: { messages: newMessage } },
-              { new: true }
-            );
-            if (conversation) io.emit('messages', conversation.messages);
-            break;
+    socket.on(
+      'newMessage',
+      async (newMessage: MessageType, conversationKey: string) => {
+        try {
+          const conversation = await ConversationModel.findOne({
+            key: conversationKey,
+          });
+          if (!conversation) {
+            console.error('Conversation not found');
+            return;
           }
-          case 'gif': {
-            const conversation = await ConversationModel.findOneAndUpdate(
-              {},
-              { $push: { messages: newMessage } },
-              { new: true }
-            );
-            if (conversation) io.emit('messages', conversation.messages);
-            break;
+          const participants = await UserModel.find({
+            _id: { $in: conversation.participants },
+          });
+
+          switch (newMessage.type) {
+            case 'text': {
+              conversation.messages.push(newMessage);
+              await conversation.save();
+
+              break;
+            }
+            case 'gif': {
+              conversation.messages.push(newMessage);
+              await conversation.save();
+              break;
+            }
+            case 'image':
+              {
+                const user = newMessage.author;
+                const messageId = uuid();
+
+                const imagePath: string = path.join(
+                  __dirname,
+                  'public',
+                  'users',
+                  user,
+                  'images',
+                  `${messageId}`
+                );
+                console.log('Received new message:', newMessage);
+
+                const fileData = newMessage.content as Buffer;
+                fs.writeFile(imagePath, fileData, (err) => {
+                  if (err) {
+                    console.error('Error writing file:', err);
+                    return;
+                  }
+                  console.log('File written successfully:', imagePath);
+                });
+
+                const requestPath = `/users/${user}/images/${messageId}`;
+                const updatedMessage = {
+                  ...newMessage,
+                  content: requestPath,
+                  id: messageId,
+                };
+
+                conversation.messages.push(updatedMessage);
+                await conversation.save();
+              }
+              break;
+
+            case 'audio':
+              {
+                const user = newMessage.author;
+                const messageId = uuid();
+
+                const audioPath: string = path.join(
+                  __dirname,
+                  'public',
+                  'users',
+                  user,
+                  'audio',
+                  `${messageId}`
+                );
+                console.log('Received new message:', newMessage);
+
+                const fileData = newMessage.content as Buffer;
+                fs.writeFile(audioPath, fileData, (err) => {
+                  if (err) {
+                    console.error('Error writing file:', err);
+                    return;
+                  }
+                  console.log('File written successfully:', audioPath);
+                });
+
+                const requestPath = `/users/${user}/audio/${messageId}`;
+                const updatedMessage = {
+                  ...newMessage,
+                  content: requestPath,
+                  id: messageId,
+                };
+
+                conversation.messages.push(updatedMessage);
+                await conversation.save();
+              }
+              break;
+            default:
+              // Handle unknown message type
+              break;
           }
-          case 'image':
-            {
-              console.log(newMessage);
-              const user = newMessage.author;
-              const messageId = uuid();
-
-              const imagePath: string = path.join(
-                __dirname,
-                'public',
-                'users',
-                user,
-                'images',
-                `${messageId}`
-              );
-              console.log('Received new message:', newMessage);
-
-              const fileData = newMessage.content as Buffer;
-              fs.writeFile(imagePath, fileData, (err) => {
-                if (err) {
-                  console.error('Error writing file:', err);
-                  return;
-                }
-                console.log('File written successfully:', imagePath);
-              });
-
-              const requestPath = `/users/${user}/images/${messageId}`;
-              const updatedMessage = {
-                ...newMessage,
-                content: requestPath,
-                id: messageId,
-              };
-
-              const updatedConversation =
-                await ConversationModel.findOneAndUpdate(
-                  {},
-                  { $push: { messages: updatedMessage } },
-                  { new: true }
-                );
-
-              if (updatedConversation)
-                io.emit('messages', updatedConversation.messages);
-            }
-            break;
-
-          case 'audio':
-            {
-              const user = newMessage.author;
-              const messageId = uuid();
-
-              const audioPath: string = path.join(
-                __dirname,
-                'public',
-                'users',
-                user,
-                'audio',
-                `${messageId}`
-              );
-              console.log('Received new message:', newMessage);
-
-              const fileData = newMessage.content as Buffer;
-              fs.writeFile(audioPath, fileData, (err) => {
-                if (err) {
-                  console.error('Error writing file:', err);
-                  return;
-                }
-                console.log('File written successfully:', audioPath);
-              });
-
-              const requestPath = `/users/${user}/audio/${messageId}`;
-              const updatedMessage = {
-                ...newMessage,
-                content: requestPath,
-                id: messageId,
-              };
-
-              const updatedConversation =
-                await ConversationModel.findOneAndUpdate(
-                  {},
-                  { $push: { messages: updatedMessage } },
-                  { new: true }
-                );
-
-              if (updatedConversation)
-                io.emit('messages', updatedConversation.messages);
-            }
-            break;
-          default:
-            // Handle unknown message type
-            break;
+          participants.forEach((participant) => {
+            socket.to(participant.name).emit('message', conversation);
+          });
+        } catch (error) {
+          console.error('Error saving new message:', error);
         }
-      } catch (error) {
-        console.error('Error saving new message:', error);
       }
-    });
+    );
 
     socket.on('disconnect', () => {
       console.log('User disconnected');
