@@ -25,7 +25,6 @@ function setupSocketIO(server: http.Server) {
 
     socket.on('join', (userName: string) => {
       socket.join(userName);
-      console.log(`User ${userName} joined room`);
     });
 
     socket.on('createNewConversation', async (chatOpen: ConversationType) => {
@@ -70,6 +69,32 @@ function setupSocketIO(server: http.Server) {
         socket.emit('createNewChatConfirmation', false);
       }
     });
+
+    socket.on('setGroupImage', (conversationKey: string, image: Buffer) => {
+      const imagePath = path.join(
+        __dirname,
+        'public',
+        'groupImages',
+        `${conversationKey}`
+      );
+      const groupImagesDirectory = path.join(
+        __dirname,
+        'public',
+        'groupImages'
+      );
+      if (!fs.existsSync(groupImagesDirectory)) {
+        fs.mkdirSync(groupImagesDirectory);
+      }
+
+      fs.writeFile(imagePath, image, (err) => {
+        if (err) {
+          console.error('Error writing file:', err);
+          return;
+        }
+        console.log('File written successfully:', imagePath);
+      });
+    });
+
     socket.on(
       'newMessage',
       async (newMessage: MessageType, conversationKey: string) => {
@@ -85,16 +110,22 @@ function setupSocketIO(server: http.Server) {
             _id: { $in: conversation.participants },
           });
 
+
           switch (newMessage.type) {
             case 'text': {
               conversation.messages.push(newMessage);
               await conversation.save();
-
+              participants.forEach((participant) => {
+                io.to(participant.name).emit('message', conversation);
+              });
               break;
             }
             case 'gif': {
               conversation.messages.push(newMessage);
               await conversation.save();
+              participants.forEach((participant) => {
+                io.to(participant.name).emit('message', conversation);
+              });
               break;
             }
             case 'image':
@@ -130,6 +161,9 @@ function setupSocketIO(server: http.Server) {
 
                 conversation.messages.push(updatedMessage);
                 await conversation.save();
+                participants.forEach((participant) => {
+                  io.to(participant.name).emit('message', conversation);
+                });
               }
               break;
 
@@ -166,15 +200,15 @@ function setupSocketIO(server: http.Server) {
 
                 conversation.messages.push(updatedMessage);
                 await conversation.save();
+                participants.forEach((participant) => {
+                  io.to(participant.name).emit('message', conversation);
+                });
               }
               break;
             default:
               // Handle unknown message type
               break;
           }
-          participants.forEach((participant) => {
-            socket.to(participant.name).emit('message', conversation);
-          });
         } catch (error) {
           console.error('Error saving new message:', error);
         }
