@@ -8,6 +8,7 @@ import {
   images_get,
   audio_get,
   contacts_get,
+  groupImage_get,
 } from '../controllers/index';
 import passport from 'passport';
 import multer from 'multer';
@@ -18,6 +19,7 @@ const protect = passport.authenticate('jwt', {
 }) as RequestHandler;
 
 const router = express.Router();
+router.get('/group/:key', groupImage_get);
 router.get('/:user/audio/messageId', audio_get);
 router.get('/:user/images/messageId', images_get);
 router.get('/:user/avatar', avatar_get);

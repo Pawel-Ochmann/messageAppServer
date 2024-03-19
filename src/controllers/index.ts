@@ -207,3 +207,20 @@ export const contacts_get = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
+export const groupImage_get: ControllerFunction = (req, res) => {
+  const { key } = req.params;
+  const imagePath = path.join(
+    __dirname,
+    '..',
+    'public',
+    'groupImages',
+    key,
+  );
+
+  if (fs.existsSync(imagePath)) {
+    res.sendFile(imagePath);
+  } else {
+    res.sendStatus(404);
+  }
+};
