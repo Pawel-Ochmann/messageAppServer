@@ -23,8 +23,8 @@ function setupSocketIO(server: http.Server) {
   io.on('connection', (socket: Socket) => {
     console.log('A user connected');
 
-    socket.on('join', (userName: string) => {
-      socket.join(userName);
+    socket.on('join', async (userName: string) => {
+      await socket.join(userName);
     });
 
     socket.on('createNewConversation', async (chatOpen: ConversationType) => {
@@ -60,7 +60,8 @@ function setupSocketIO(server: http.Server) {
         });
 
         for (const participant of populatedParticipants) {
-          socket.to(participant.name).emit('updatedUserDocument', participant);
+          await participant.populate('conversations');
+          io.to(participant.name).emit('updatedUserDocument', participant);
         }
 
         socket.emit('createNewChatConfirmation', true);
@@ -109,7 +110,6 @@ function setupSocketIO(server: http.Server) {
           const participants = await UserModel.find({
             _id: { $in: conversation.participants },
           });
-
 
           switch (newMessage.type) {
             case 'text': {
