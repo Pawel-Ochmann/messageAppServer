@@ -25,6 +25,17 @@ function setupSocketIO(server: http.Server) {
 
     socket.on('join', async (userName: string) => {
       await socket.join(userName);
+      console.log('user has joing room: ', userName);
+      try {
+        const user = await UserModel.findOneAndUpdate(
+          { name: userName },
+          { lastVisited: new Date() },
+          { new: true }
+        );
+        console.log('User last visited updated successfully:', user);
+      } catch (error) {
+        console.error('Error updating user last visited:', error);
+      }
     });
 
     socket.on(
@@ -104,6 +115,12 @@ function setupSocketIO(server: http.Server) {
       'newMessage',
       async (newMessage: MessageType, conversationKey: string) => {
         try {
+          UserModel.findOneAndUpdate(
+            { name: newMessage.author },
+            { lastVisited: new Date() },
+            { new: true }
+          );
+
           const conversation = await ConversationModel.findOne({
             key: conversationKey,
           });
@@ -213,6 +230,7 @@ function setupSocketIO(server: http.Server) {
               // Handle unknown message type
               break;
           }
+        
         } catch (error) {
           console.error('Error saving new message:', error);
         }
