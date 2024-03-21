@@ -25,14 +25,13 @@ function setupSocketIO(server: http.Server) {
 
     socket.on('join', async (userName: string) => {
       await socket.join(userName);
-      console.log('user has joing room: ', userName);
+
       try {
-        const user = await UserModel.findOneAndUpdate(
+        await UserModel.findOneAndUpdate(
           { name: userName },
           { lastVisited: new Date() },
           { new: true }
         );
-        console.log('User last visited updated successfully:', user);
       } catch (error) {
         console.error('Error updating user last visited:', error);
       }
@@ -230,14 +229,38 @@ function setupSocketIO(server: http.Server) {
               // Handle unknown message type
               break;
           }
-        
         } catch (error) {
           console.error('Error saving new message:', error);
         }
       }
     );
 
+    socket.on(
+      'getStatus',
+      async (otherParticipant: string, callback: (status: string) => void) => {
+        try {
+          if (io.sockets.adapter.rooms.has(otherParticipant)) {
+            callback('active');
+          } else {
+            const user = await UserModel.findOne({ name: otherParticipant });
+
+            if (user) {
+              const lastVisitedString = user.lastVisited.toString();
+              callback(lastVisitedString);
+            } else {
+              callback('');
+            }
+          }
+        } catch (error) {
+          console.error('Error handling getStatus event:', error);
+          callback('');
+        }
+      }
+    );
+
     socket.on('disconnect', () => {
+      const rooms = io.sockets.adapter.rooms;
+      console.log('Open rooms on disconnect event:', rooms);
       console.log('User disconnected');
     });
   });

@@ -20,9 +20,7 @@ export type ReqBody = {
   password: string;
 };
 
-export const main_get: ControllerFunction = async(req, res) => {
-  const user =  await UserModel.findOne({});
-  console.log('user: ', user)
+export const main_get: ControllerFunction = (req, res) => {
   const token = req.headers.authorization?.split(' ')[1] as string;
 
   type Decoded = {
