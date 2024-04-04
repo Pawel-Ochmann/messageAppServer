@@ -258,16 +258,14 @@ function setupSocketIO(server: http.Server) {
       }
     );
 
-    socket.on('typing', (userName: string, sender:string) => {
+    socket.on('typing', (userName: string, sender: string) => {
       if (io.sockets.adapter.rooms.has(userName)) {
         io.to(userName).emit('typing', sender);
       }
     });
 
     socket.on('disconnect', () => {
-      const rooms = io.sockets.adapter.rooms;
-      console.log('Open rooms on disconnect event:', rooms);
-      console.log('User disconnected');
+      socket.removeAllListeners();
     });
   });
 }

@@ -35,7 +35,6 @@ export const main_get: ControllerFunction = (req, res) => {
     const decodedUser = await UserModel.findById(
       decodedToken.user._id
     ).populate('conversations');
-
     if (!decodedUser) {
       return res.status(404).json({ message: 'User not found' });
     }
