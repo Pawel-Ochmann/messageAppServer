@@ -8,9 +8,11 @@ import cors from 'cors';
 import router from './routes/router';
 import passport from './passport-config';
 import dotenv from 'dotenv';
-dotenv.config();
 import { initializeSocket } from './socket';
-// import 'express-async-errors';
+import http from 'http';
+dotenv.config();
+
+
 
 import EnvVars from '@src/constants/EnvVars';
 import HttpStatusCodes from '@src/constants/HttpStatusCodes';
@@ -34,7 +36,9 @@ async function main() {
 const app = express();
 app.use(cors());
 
-initializeSocket(4000);
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+const httpServer:http.Server = http.createServer(app);
+initializeSocket(httpServer);
 app.use(passport.initialize());
 
 // Basic middleware

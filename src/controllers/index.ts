@@ -81,10 +81,14 @@ export const signup_post: ControllerFunction = async (req, res) => {
 export const login_post: ControllerFunction = (req, res, next) => {
   const doneFunction = (err: Error | null, user: UserType | null) => {
     if (err) {
-      return res.status(500).json({ error: 'Internal server error' });
+      return res
+        .status(500)
+        .json({ done: false, message: 'Internal server error' });
     }
     if (!user) {
-      return res.status(401).json('There is no user');
+      return res
+        .status(401)
+        .json({ done: false, message: 'Invalid username or password' });
     }
     const token = jwt.sign({ user }, jwtSecret, {
       expiresIn: '1h',
@@ -207,13 +211,7 @@ export const contacts_get = async (req: Request, res: Response) => {
 
 export const groupImage_get: ControllerFunction = (req, res) => {
   const { key } = req.params;
-  const imagePath = path.join(
-    __dirname,
-    '..',
-    'public',
-    'groupImages',
-    key,
-  );
+  const imagePath = path.join(__dirname, '..', 'public', 'groupImages', key);
 
   if (fs.existsSync(imagePath)) {
     res.sendFile(imagePath);

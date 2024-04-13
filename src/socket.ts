@@ -1,6 +1,6 @@
 /* eslint-disable indent */
 import { Server, Socket } from 'socket.io';
-import http from 'http';
+import { Server as HttpServer } from 'http';
 import {
   MessageType,
   ConversationModel,
@@ -11,7 +11,7 @@ import path from 'path';
 import fs from 'fs';
 import { v4 as uuid } from 'uuid';
 
-function setupSocketIO(server: http.Server) {
+export function initializeSocket(server: HttpServer) {
   const io = new Server(server, {
     cors: {
       origin: '*',
@@ -270,10 +270,4 @@ function setupSocketIO(server: http.Server) {
   });
 }
 
-export function initializeSocket(port: number) {
-  const server = new http.Server();
-  setupSocketIO(server);
-  server.listen(port, () => {
-    console.log(`Socket server is running on port ${port}`);
-  });
-}
+
