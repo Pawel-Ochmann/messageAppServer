@@ -129,6 +129,9 @@ export function initializeSocket(server: HttpServer) {
           const participants = await UserModel.find({
             _id: { $in: conversation.participants },
           });
+          console.log('participants: ', participants.length);
+
+
 
           switch (newMessage.type) {
             case 'text': {
