@@ -19,7 +19,6 @@ export function initializeSocket(server: HttpServer) {
     },
   });
 
-  console.log('connected to socket');
   io.on('connection', (socket: Socket) => {
     console.log('A user connected');
 
