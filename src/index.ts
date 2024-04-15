@@ -1,16 +1,16 @@
 import './pre-start'; // Must be the first import
 import logger from 'jet-logger';
 
-import EnvVars from '@src/constants/EnvVars';
-import server from './server';
 import { initializeSocket } from './socket';
+import server from './server';
 
 // **** Run **** //
 
-const SERVER_START_MSG =
-  'Express server started on port: ' + EnvVars.Port.toString();
+const PORT = 3000; 
 
-const httpServer = server.listen(EnvVars.Port, () => {
+const SERVER_START_MSG = 'Express server started on port: ' + PORT.toString();
+
+const httpServer = server.listen(PORT, '0.0.0.0', () => {
   logger.info(SERVER_START_MSG);
   console.log('server is running');
 });
