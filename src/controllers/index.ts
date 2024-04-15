@@ -64,12 +64,24 @@ export const signup_post: ControllerFunction = async (req, res) => {
 
     await newUser.save();
 
-    const userDir = path.join(__dirname, '..', 'public', 'users', name);
-    fs.mkdirSync(userDir);
+    const usersDir = path.join(__dirname, '..', 'public', 'users');
+    if (!fs.existsSync(usersDir)) {
+      fs.mkdirSync(usersDir);
+    }
+
+    const userDir = path.join(usersDir, name);
+    if (!fs.existsSync(userDir)) {
+      fs.mkdirSync(userDir);
+    }
+
     const imagesDir = path.join(userDir, 'images');
     const audioDir = path.join(userDir, 'audio');
-    fs.mkdirSync(imagesDir);
-    fs.mkdirSync(audioDir);
+    if (!fs.existsSync(imagesDir)) {
+      fs.mkdirSync(imagesDir);
+    }
+    if (!fs.existsSync(audioDir)) {
+      fs.mkdirSync(audioDir);
+    }
 
     res.status(201).json({ done: true });
   } catch (error) {
