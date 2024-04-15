@@ -12,7 +12,6 @@ const SERVER_START_MSG = 'Express server started on port: ' + PORT.toString();
 
 const httpServer = server.listen(PORT, '0.0.0.0', () => {
   logger.info(SERVER_START_MSG);
-  console.log('server is running');
 });
 
 initializeSocket(httpServer);
