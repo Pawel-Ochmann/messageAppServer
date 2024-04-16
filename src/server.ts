@@ -10,8 +10,6 @@ import passport from './passport-config';
 import dotenv from 'dotenv';
 dotenv.config();
 
-
-
 import EnvVars from '@src/constants/EnvVars';
 import HttpStatusCodes from '@src/constants/HttpStatusCodes';
 
@@ -43,7 +41,10 @@ app.use(function (req, res, next) {
     'Origin, X-Requested-With, Content-Type, Accept'
   );
   res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Origin', 'https://xxx');
+  res.setHeader(
+    'Access-Control-Allow-Origin',
+    'https://message-app-client.netlify.app'
+  );
   res.setHeader('Access-Control-Expose-Headers', 'agreementrequired');
 
   next();
@@ -84,7 +85,7 @@ app.use(
       status = err.status;
     }
     return res.status(status).json({ error: err.message });
-  },
+  }
 );
 
 // ** Front-End Content ** //
