@@ -72,6 +72,7 @@ export const signup_post: ControllerFunction = async (req, res) => {
     const userDir = path.join(usersDir, name);
     if (!fs.existsSync(userDir)) {
       fs.mkdirSync(userDir);
+      console.log('users directory succesfully created: ', userDir);
     }
 
     const imagesDir = path.join(userDir, 'images');
