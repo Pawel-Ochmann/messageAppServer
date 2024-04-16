@@ -202,7 +202,6 @@ export const audio_get: ControllerFunction = (req, res) => {
   );
 
   if (fs.existsSync(audioPath)) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
     res.sendFile(audioPath);
   } else {
     res.sendStatus(404);

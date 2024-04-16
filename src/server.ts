@@ -36,6 +36,19 @@ app.use(cors());
 
 app.use(passport.initialize());
 
+app.use(function (req, res, next) {
+  req.socket.setNoDelay(true);
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept'
+  );
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Origin', 'https://xxx');
+  res.setHeader('Access-Control-Expose-Headers', 'agreementrequired');
+
+  next();
+});
+
 // Basic middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
