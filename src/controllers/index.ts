@@ -1,3 +1,4 @@
+/* eslint-disable node/no-unsupported-features/node-builtins */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
@@ -49,7 +50,6 @@ export const signup_post: ControllerFunction = async (req, res) => {
   const { name, password } = req.body as ReqBody;
 
   try {
-    // Check if the username already exists
     const existingUser = await UserModel.findOne({ name });
     if (existingUser) {
       return res.json({ done: false, message: 'Username already exists' });
@@ -64,25 +64,26 @@ export const signup_post: ControllerFunction = async (req, res) => {
 
     await newUser.save();
 
-    const usersDir = path.join(__dirname, '..', 'public', 'users');
-    if (!fs.existsSync(usersDir)) {
-      fs.mkdirSync(usersDir);
-    }
+    const usersDir = path.join(__dirname, '..', 'users');
 
     const userDir = path.join(usersDir, name);
-    if (!fs.existsSync(userDir)) {
-      fs.mkdirSync(userDir);
-      console.log('users directory succesfully created: ', userDir);
+    try {
+      await fs.promises.access(userDir);
+    } catch (err) {
+      const error = err as NodeJS.ErrnoException;
+      if (error.code === 'ENOENT') {
+        await fs.promises.mkdir(userDir);
+        console.log('users directory successfully created:', userDir);
+      } else {
+        throw error;
+      }
     }
 
     const imagesDir = path.join(userDir, 'images');
     const audioDir = path.join(userDir, 'audio');
-    if (!fs.existsSync(imagesDir)) {
-      fs.mkdirSync(imagesDir);
-    }
-    if (!fs.existsSync(audioDir)) {
-      fs.mkdirSync(audioDir);
-    }
+
+    await fs.promises.mkdir(imagesDir);
+    await fs.promises.mkdir(audioDir);
 
     res.status(201).json({ done: true });
   } catch (error) {
@@ -116,39 +117,30 @@ export const login_post: ControllerFunction = (req, res, next) => {
   );
 };
 
-export const avatar_get: ControllerFunction = (req, res) => {
+export const avatar_get: ControllerFunction = async (req, res) => {
   const { user } = req.params;
-  const imagePath = path.join(
-    __dirname,
-    '..',
-    'public',
-    'users',
-    user,
-    'avatar'
-  );
+  const imagePath = path.join(__dirname, '..', 'users', user, 'avatar');
 
-  if (fs.existsSync(imagePath)) {
+  try {
+    await fs.promises.access(imagePath);
     res.sendFile(imagePath);
-  } else {
-    res.sendStatus(404);
+  } catch (error) {
+    const err = error as NodeJS.ErrnoException;
+    if (err.code === 'ENOENT') {
+      res.sendStatus(404);
+    } else {
+      console.error('Error accessing file:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
   }
 };
-
 export const avatar_post: ControllerFunction = (req, res) => {
   const { user } = req.params;
-  const imagePath = path.join(
-    __dirname,
-    '..',
-    'public',
-    'users',
-    user,
-    'avatar'
-  );
+  const imagePath = path.join(__dirname, '..', 'users', user, 'avatar');
 
   if (req.file) {
     const imageFile = req.file;
 
-    // Save the file
     fs.writeFile(imagePath, imageFile.buffer, (err) => {
       if (err) {
         console.error('Error saving image:', err);
@@ -171,41 +163,53 @@ export const avatar_post: ControllerFunction = (req, res) => {
   }
 };
 
-export const images_get: ControllerFunction = (req, res) => {
+export const images_get: ControllerFunction = async (req, res) => {
   const { user, messageId } = req.params;
   const imagePath = path.join(
     __dirname,
     '..',
-    'public',
     'users',
     user,
     'images',
     messageId
   );
 
-  if (fs.existsSync(imagePath)) {
+  try {
+    await fs.promises.access(imagePath);
     res.sendFile(imagePath);
-  } else {
-    res.sendStatus(404);
+  } catch (error) {
+    const err = error as NodeJS.ErrnoException;
+    if (err.code === 'ENOENT') {
+      res.sendStatus(404);
+    } else {
+      console.error('Error accessing file:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
   }
 };
 
-export const audio_get: ControllerFunction = (req, res) => {
+export const audio_get: ControllerFunction = async (req, res) => {
   const { user, messageId } = req.params;
   const audioPath = path.join(
     __dirname,
     '..',
-    'public',
     'users',
     user,
     'audio',
     messageId
   );
 
-  if (fs.existsSync(audioPath)) {
+  try {
+    await fs.promises.access(audioPath);
     res.sendFile(audioPath);
-  } else {
-    res.sendStatus(404);
+  } catch (error) {
+    const err = error as NodeJS.ErrnoException;
+    if (err.code === 'ENOENT') {
+      res.sendStatus(404);
+    } else {
+      console.error('Error accessing file:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
   }
 };
 
@@ -222,13 +226,20 @@ export const contacts_get = async (req: Request, res: Response) => {
   }
 };
 
-export const groupImage_get: ControllerFunction = (req, res) => {
+export const groupImage_get: ControllerFunction = async (req, res) => {
   const { key } = req.params;
-  const imagePath = path.join(__dirname, '..', 'public', 'groupImages', key);
+  const imagePath = path.join(__dirname, '..', 'groupImages', key);
 
-  if (fs.existsSync(imagePath)) {
+  try {
+    await fs.promises.access(imagePath);
     res.sendFile(imagePath);
-  } else {
-    res.sendStatus(404);
+  } catch (error) {
+    const err = error as NodeJS.ErrnoException;
+    if (err.code === 'ENOENT') {
+      res.sendStatus(404);
+    } else {
+      console.error('Error accessing file:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
   }
 };

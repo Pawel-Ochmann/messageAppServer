@@ -87,26 +87,38 @@ export function initializeSocket(server: HttpServer) {
     socket.on('setGroupImage', (conversationKey: string, image: Buffer) => {
       const imagePath = path.join(
         __dirname,
-        'public',
+        'users',
         'groupImages',
         `${conversationKey}`
       );
-      const groupImagesDirectory = path.join(
-        __dirname,
-        'public',
-        'groupImages'
-      );
-      if (!fs.existsSync(groupImagesDirectory)) {
-        fs.mkdirSync(groupImagesDirectory);
-      }
-
-      fs.writeFile(imagePath, image, (err) => {
+      const groupImagesDirectory = path.join(__dirname, 'users', 'groupImages');
+      fs.access(groupImagesDirectory, fs.constants.F_OK, (err) => {
         if (err) {
-          console.error('Error writing file:', err);
-          return;
+          if (err.code === 'ENOENT') {
+            fs.mkdir(groupImagesDirectory, { recursive: true }, (err) => {
+              if (err) {
+                console.error('Error creating directory:', err);
+                return;
+              }
+              writeFile(imagePath);
+            });
+          } else {
+            console.error('Error accessing directory:', err);
+          }
+        } else {
+          writeFile(imagePath);
         }
-        console.log('File written successfully:', imagePath);
       });
+
+      function writeFile(imagePath: string) {
+        fs.writeFile(imagePath, image, (err) => {
+          if (err) {
+            console.error('Error writing file:', err);
+            return;
+          }
+          console.log('File written successfully:', imagePath);
+        });
+      }
     });
 
     socket.on(
@@ -130,8 +142,6 @@ export function initializeSocket(server: HttpServer) {
             _id: { $in: conversation.participants },
           });
           console.log('participants: ', participants.length);
-
-
 
           switch (newMessage.type) {
             case 'text': {
@@ -157,7 +167,6 @@ export function initializeSocket(server: HttpServer) {
 
                 const imagePath: string = path.join(
                   __dirname,
-                  'public',
                   'users',
                   user,
                   'images',
@@ -196,7 +205,6 @@ export function initializeSocket(server: HttpServer) {
 
                 const audioPath: string = path.join(
                   __dirname,
-                  'public',
                   'users',
                   user,
                   'audio',
@@ -271,5 +279,3 @@ export function initializeSocket(server: HttpServer) {
     });
   });
 }
-
-
