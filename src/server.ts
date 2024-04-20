@@ -46,6 +46,7 @@ app.use(function (req, res, next) {
     'https://message-app-client.netlify.app'
   );
   res.setHeader('Access-Control-Expose-Headers', 'agreementrequired');
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
 
   next();
 });
