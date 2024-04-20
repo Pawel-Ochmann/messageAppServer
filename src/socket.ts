@@ -85,7 +85,11 @@ export function initializeSocket(server: HttpServer) {
     );
 
     socket.on('setGroupImage', (conversationKey: string, image: Buffer) => {
-      const imagePath = path.join('/users', 'groupImages', `${conversationKey}`);
+      const imagePath = path.join(
+        '/users',
+        'groupImages',
+        `${conversationKey}`
+      );
       const groupImagesDirectory = path.join('/users', 'groupImages');
       fs.access(groupImagesDirectory, fs.constants.F_OK, (err) => {
         if (err) {
@@ -177,7 +181,7 @@ export function initializeSocket(server: HttpServer) {
                   console.log('File written successfully:', imagePath);
                 });
 
-                const requestPath = `/users/${user}/images/${messageId}`;
+                const requestPath = `${user}/images/${messageId}`;
                 const updatedMessage = {
                   ...newMessage,
                   content: requestPath,
@@ -214,7 +218,7 @@ export function initializeSocket(server: HttpServer) {
                   console.log('File written successfully:', audioPath);
                 });
 
-                const requestPath = `/users/${user}/audio/${messageId}`;
+                const requestPath = `${user}/audio/${messageId}`;
                 const updatedMessage = {
                   ...newMessage,
                   content: requestPath,
