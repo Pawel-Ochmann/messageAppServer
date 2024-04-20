@@ -85,12 +85,7 @@ export function initializeSocket(server: HttpServer) {
     );
 
     socket.on('setGroupImage', (conversationKey: string, image: Buffer) => {
-      const imagePath = path.join(
-        __dirname,
-        'users',
-        'groupImages',
-        `${conversationKey}`
-      );
+      const imagePath = path.join('users', 'groupImages', `${conversationKey}`);
       const groupImagesDirectory = path.join(__dirname, 'users', 'groupImages');
       fs.access(groupImagesDirectory, fs.constants.F_OK, (err) => {
         if (err) {
@@ -166,7 +161,6 @@ export function initializeSocket(server: HttpServer) {
                 const messageId = uuid();
 
                 const imagePath: string = path.join(
-                  __dirname,
                   'users',
                   user,
                   'images',
@@ -204,7 +198,6 @@ export function initializeSocket(server: HttpServer) {
                 const messageId = uuid();
 
                 const audioPath: string = path.join(
-                  __dirname,
                   'users',
                   user,
                   'audio',

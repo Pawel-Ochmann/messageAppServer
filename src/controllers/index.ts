@@ -64,9 +64,7 @@ export const signup_post: ControllerFunction = async (req, res) => {
 
     await newUser.save();
 
-    const usersDir = path.join(__dirname, '..', 'users');
-
-    const userDir = path.join(usersDir, name);
+    const userDir = path.join('users', name);
     try {
       await fs.promises.access(userDir);
     } catch (err) {
@@ -119,7 +117,7 @@ export const login_post: ControllerFunction = (req, res, next) => {
 
 export const avatar_get: ControllerFunction = async (req, res) => {
   const { user } = req.params;
-  const imagePath = path.join(__dirname, '..', 'users', user, 'avatar');
+  const imagePath = path.join('users', user, 'avatar');
 
   try {
     await fs.promises.access(imagePath);
@@ -136,7 +134,7 @@ export const avatar_get: ControllerFunction = async (req, res) => {
 };
 export const avatar_post: ControllerFunction = (req, res) => {
   const { user } = req.params;
-  const imagePath = path.join(__dirname, '..', 'users', user, 'avatar');
+  const imagePath = path.join('users', user, 'avatar');
 
   if (req.file) {
     const imageFile = req.file;
@@ -165,14 +163,7 @@ export const avatar_post: ControllerFunction = (req, res) => {
 
 export const images_get: ControllerFunction = async (req, res) => {
   const { user, messageId } = req.params;
-  const imagePath = path.join(
-    __dirname,
-    '..',
-    'users',
-    user,
-    'images',
-    messageId
-  );
+  const imagePath = path.join('users', user, 'images', messageId);
 
   try {
     await fs.promises.access(imagePath);
@@ -190,14 +181,7 @@ export const images_get: ControllerFunction = async (req, res) => {
 
 export const audio_get: ControllerFunction = async (req, res) => {
   const { user, messageId } = req.params;
-  const audioPath = path.join(
-    __dirname,
-    '..',
-    'users',
-    user,
-    'audio',
-    messageId
-  );
+  const audioPath = path.join('users', user, 'audio', messageId);
 
   try {
     await fs.promises.access(audioPath);
@@ -228,7 +212,7 @@ export const contacts_get = async (req: Request, res: Response) => {
 
 export const groupImage_get: ControllerFunction = async (req, res) => {
   const { key } = req.params;
-  const imagePath = path.join(__dirname, '..', 'groupImages', key);
+  const imagePath = path.join('users', 'groupImages', key);
 
   try {
     await fs.promises.access(imagePath);
