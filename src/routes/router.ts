@@ -20,8 +20,8 @@ const protect = passport.authenticate('jwt', {
 
 const router = express.Router();
 router.get('/group/:key', groupImage_get);
-router.get('/:user/audio/messageId', audio_get);
-router.get('/:user/images/messageId', images_get);
+router.get('/:user/audio/:messageId', audio_get);
+router.get('/:user/images/:messageId', images_get);
 router.get('/:user/avatar', avatar_get);
 router.get('/contacts/:user', protect, contacts_get);
 router.get('/', main_get);
