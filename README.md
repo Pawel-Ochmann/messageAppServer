@@ -1,45 +1,56 @@
-=============================
-This is my main project, after 1,5y of learning javasript both on frondend and backend. It is a server part of this project - a message app, dynamic one, allows users to send messages, as well as images, giphs, emotes, etc. With full authorization, and storing data in mongoDB database.
-================================
+## Messaging App Project
 
-## About
+This is the backend repository for the Full Stack Messaging App Project built for the [Odin Project Curriculum](https://www.theodinproject.com/lessons/nodejs-messaging-app).
 
-This project was created with [express-generator-typescript](https://github.com/seanpmaxwell/express-generator-typescript).
+The goal of the project was to build a messaging web app that allows users to send and receive real-time messages.
 
-## Available Scripts
+Frontend part is using react/typescript, backend - Express.js/MongoDB. Both are written in typescript.
 
-### `npm run dev`
+The Socket.IO library was used for the real-time communication functionality between the project's client and server.
 
-Run the server in development mode.
+- Project's Live Preview url - https://message-app-client.netlify.app
+- Project's Frontend Repository - https://github.com/Pawel-Ochmann/messageAppClient.git
+- Project's Backend Server Address - https://message-application.fly.dev
 
-### `npm test`
+If you have any questions, or spot a bug, contact me via linked in - https://www.linkedin.com/in/paweł-ochmann-86418a2b5/ or email - pav.ochmann@gmail.com
 
-Run all unit-tests with hot-reloading.
+## Technologies Used
 
-### `npm test -- --testFile="name of test file" (i.e. --testFile=Users).`
+- NodeJS
+- ExpressJS
+- MongoDB
+- ReactJS
+- CSS Modules
+- Socket.IO
 
-Run a single unit-test.
+## Key features
 
-### `npm run test:no-reloading`
+- Real-time transmission of messages between users using WebSockets
+- Allows sending messages, emotes, images
+- Sending Giphs - dynamic search, using Giphy.com api
+- Allows recording and sending audio messages
+- Integration with RESTful backend API
+- Persistent Authentication using JWTs
+- Creating new accounts and customizing users profiles
+- Setting light/dark mode and store settings between sessions
+- Audio effects and setting volume level in settings
+- Creating groups, setting group image, adding users, sending group messages (images, audio etc.)
+- Displaying info about users activity - last time seen (or is active), if user is typing.
 
-Run all unit-tests without hot-reloading.
+## Installation
 
-### `npm run lint`
+To run the project locally :
 
-Check for linting errors.
+- Clone the repository and run the following command to install the project's dependencies
 
-### `npm run build`
+```
+npm install
+```
 
-Build the project for production.
+- Run the following command to spin up a local development server
 
-### `npm start`
+```
+npm run dev
+```
 
-Run the production build (Must be built first).
-
-### `npm start -- --env="name of env file" (default is production).`
-
-Run production build with a different env file.
-
-## Additional Notes
-
-- If `npm run dev` gives you issues with bcrypt on MacOS you may need to run: `npm rebuild bcrypt --build-from-source`.
+- Open http://localhost:5173 with your browser to access a local version of the project's client
