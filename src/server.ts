@@ -30,13 +30,7 @@ async function main() {
 }
 
 const app = express();
-app.use(
-  cors({
-    origin: 'https://message-app-client.netlify.app',
-    methods: ['GET', 'POST'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  })
-);
+app.use(cors());
 
 app.use(passport.initialize());
 
@@ -47,10 +41,10 @@ app.use(function (req, res, next) {
     'Origin, X-Requested-With, Content-Type, Accept'
   );
   res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader(
-    'Access-Control-Allow-Origin',
-    'https://message-app-client.netlify.app'
-  );
+  // res.setHeader(
+  //   'Access-Control-Allow-Origin',
+  //   'https://message-app-client.netlify.app'
+  // );
   res.setHeader('Access-Control-Expose-Headers', 'agreementrequired');
   res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
 
