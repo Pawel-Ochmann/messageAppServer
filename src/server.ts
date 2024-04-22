@@ -30,7 +30,13 @@ async function main() {
 }
 
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: 'https://message-app-client.netlify.app',
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+);
 
 app.use(passport.initialize());
 
